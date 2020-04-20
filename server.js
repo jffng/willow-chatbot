@@ -1,17 +1,18 @@
+const SECRET = require('./config').secret;
 const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
+const bunyan = require('bunyan')
+const fs = require('fs');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
-const SECRET = require('./config').secret;
-
-const fs = require('fs');
-
+const log = bunyan.createLogger({ name: 'willow' });
 const app = express();
 app.use( bodyParser.urlencoded( { extended: true } ) );
 
 app.post('/sms', (req, res) => {
 	const { Body, From } = req.body;
+	log.info({ body: Body, from: From }, 'sms');
 	const newHuman = messageContainsSecret( Body ) && isNewUser( From );
 	if ( newHuman ){
 		const twiml = new MessagingResponse();
