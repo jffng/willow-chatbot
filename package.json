@@ -1,0 +1,17 @@
+{
+  "name": "willow-meditation-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "twilio": "^3.42.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "jeff ong",
+  "license": "MIT"
+}
