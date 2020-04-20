@@ -10,6 +10,10 @@ const log = bunyan.createLogger({ name: 'willow' });
 const app = express();
 app.use( bodyParser.urlencoded( { extended: true } ) );
 
+app.get('/', (req, res) => {
+	res.sendStatus(200);
+});
+
 app.post('/sms', (req, res) => {
 	const { Body, From } = req.body;
 	log.info({ body: Body, from: From }, 'sms');
@@ -22,7 +26,9 @@ app.post('/sms', (req, res) => {
 		res.writeHead(200, {'Content-Type': 'text/xml'});
 		res.end(twiml.toString());
 	}
-	else res.end();
+	else {
+		res.end();
+	}
 });
 
 http.createServer(app).listen(1337, () => {
