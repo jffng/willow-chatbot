@@ -27,11 +27,8 @@ app.post('/sms', (req, res) => {
 		res.end(twiml.toString());
 	} else if ( isUnsubscribe ){
 		removeUser( From );
-		twiml.message(willowMessages.unsubscribe);
-		res.writeHead(200, {'Content-Type': 'text/xml'});
-		res.end(twiml.toString());
-	}
-	else {
+		res.end();
+	} else {
 		res.end();
 	}
 });
