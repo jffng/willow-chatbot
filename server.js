@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const bunyan = require('bunyan')
 const fs = require('fs');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
+const willowMessages = require('./messages');
 
 const log = bunyan.createLogger({ name: 'willow' });
 const app = express();
@@ -18,11 +19,14 @@ app.post('/sms', (req, res) => {
 	const { Body, From } = req.body;
 	log.info({ body: Body, from: From }, 'sms');
 	const newHuman = messageContainsSecret( Body ) && isNewUser( From );
+	const isUnsubscribe = messageContainsStop( Body ) && isExistingUser( From );
+	const twiml = new MessagingResponse();
 	if ( newHuman ){
-		const twiml = new MessagingResponse();
-
-		twiml.message("Hello! Welcome to Willow The Mindfulness Bot’s daily mini meditations. I’m here to guide you through daily breathing exercises as a small but not insignificant way to bring a moment of calm into your day otherwise presumably filled with high anxiety during this global pandemic.\n\nReply with the secret code to enroll in these daily offerings. Reply \"PLEASE STOP\" if you enjoy your high levels of anxiety and don’t appreciate daily reminders to breathe.");
-
+		twiml.message(willowMessages.welcome);
+		res.writeHead(200, {'Content-Type': 'text/xml'});
+		res.end(twiml.toString());
+	} else if ( isUnsubscribe ){
+		twiml.message(willowMessages.unsubscribe);
 		res.writeHead(200, {'Content-Type': 'text/xml'});
 		res.end(twiml.toString());
 	}
@@ -31,9 +35,34 @@ app.post('/sms', (req, res) => {
 	}
 });
 
+app.get('/test/:body', ( req, res ) => {
+	const Body = req.params.body;
+	const From = '+12345678';
+	const newHuman = messageContainsSecret( Body );
+	const isUnsubscribe = messageContainsStop( Body );
+	if ( newHuman ){
+		res.send( willowMessages.welcome );
+	} else if ( isUnsubscribe ){
+		res.send( willowMessages.unsubscribe );
+	}
+	else {
+		res.send( 'do nothing' );
+	}
+});
+
 http.createServer(app).listen(1337, () => {
 	console.log('Express server listening on port 1337');
 });
+
+function isExistingUser( number ){
+	let users = JSON.parse(fs.readFileSync('./users.json'));
+
+	if ( users.numbers.indexOf( number ) !== -1 ){
+		return true;
+	}
+
+	return false;
+}
 
 function isNewUser( number ){
 	let users = JSON.parse(fs.readFileSync('./users.json'));
@@ -52,4 +81,10 @@ function messageContainsSecret( message ){
 		return message.toLowerCase().includes( SECRET );
 	}
 	return false;
+}
+
+function messageContainsStop( message ){
+	if ( typeof(message) === 'string' ){
+		return message.toLowerCase().includes('stop');
+	}
 }
