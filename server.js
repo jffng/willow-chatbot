@@ -26,6 +26,7 @@ app.post('/sms', (req, res) => {
 		res.writeHead(200, {'Content-Type': 'text/xml'});
 		res.end(twiml.toString());
 	} else if ( isUnsubscribe ){
+		removeUser( From );
 		twiml.message(willowMessages.unsubscribe);
 		res.writeHead(200, {'Content-Type': 'text/xml'});
 		res.end(twiml.toString());
@@ -38,11 +39,12 @@ app.post('/sms', (req, res) => {
 app.get('/test/:body', ( req, res ) => {
 	const Body = req.params.body;
 	const From = '+12345678';
-	const newHuman = messageContainsSecret( Body );
-	const isUnsubscribe = messageContainsStop( Body );
+	const newHuman = messageContainsSecret( Body ) && isNewUser( From );
+	const isUnsubscribe = messageContainsStop( Body ) && isExistingUser( From );
 	if ( newHuman ){
 		res.send( willowMessages.welcome );
 	} else if ( isUnsubscribe ){
+		removeUser( From );
 		res.send( willowMessages.unsubscribe );
 	}
 	else {
@@ -74,6 +76,14 @@ function isNewUser( number ){
 	}
 
 	return false;
+}
+
+function removeUser( number ){
+	let users = JSON.parse(fs.readFileSync('./users.json'));
+	const tempNumbers = users.numbers.filter( n => n !== number );
+	users.numbers = tempNumbers;
+	fs.writeFileSync( 'users.json', JSON.stringify( users ));
+	return true;
 }
 
 function messageContainsSecret( message ){
