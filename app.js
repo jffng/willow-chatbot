@@ -10,7 +10,7 @@ if ( users.length ){
 	users.forEach( user => {
 		client.messages
 		  .create({
-			  body: "Hi there! Willow here 🌸and it’s time for a deep breath *cue DEEP BREATH*\n\nIf you an extra moment, find a comfortable seat, straighten your spine, and close your eyes. *now* you’re ready to indulge in a deep breath, or two, or three.",
+			  body: "Hello sweet human! Willow here, reminding you to breathe with an invitation you stretch your body.\n\nThe following stretch can be done standing or seated. Go ahead and stand up if you’re able to.\n\nTake a deep inhale while raising your arms slowly over your head. Exhale as you slowly lower your arms.\nRepeat 3 times. 🙆‍♀️\n\nBefore you go back to sitting why not give your tush a wiggle and your legs a shake🦵🍑",
 			 from: phoneNumber,
 			 to: user
 		   })
